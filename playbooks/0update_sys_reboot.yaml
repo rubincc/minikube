@@ -1,4 +1,6 @@
 ---
+# https://luktom.net/en/e1497-how-to-update-centos-rhel-using-ansible
+
 - hosts: minikub
   gather_facts: true
   user: opman
