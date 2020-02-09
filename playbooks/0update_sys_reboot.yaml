@@ -1,0 +1,61 @@
+---
+- hosts: minikub
+  gather_facts: true
+  user: opman
+  become: true
+
+  tasks:
+
+  - name: Install needed packages for automated update
+    package:
+      name:
+        - yum-utils
+
+  - name: check packages for updates
+    shell: yum list updates | awk 'f;/Updated Packages/{f=1;}' | awk '{ print $1 }'
+    # I had to add 'check_mode: no' to be possible to run the playbook in --check-mode
+    check_mode: no
+    changed_when: updates.stdout_lines | length > 0
+    args:
+      warn: false
+    register: updates
+
+  - name: Display count
+    debug:
+      msg: "Found {{ updates.stdout_lines | length }} packages to be updated:\n\n{{ updates.stdout }}"
+
+  - when: updates.stdout_lines | length > 0
+    block:
+      - name: install updates using yum
+        yum:
+          name: "*"
+          state: latest
+
+      - name: check if reboot is required
+        shell: needs-restarting -r
+        check_mode: no
+        failed_when: false
+        register: reboot_required
+        changed_when: false
+
+  - when: updates.stdout_lines | length > 0 and reboot_required.rc != 0
+    block:
+      - name: reboot the server if required
+        shell: sleep 3; reboot
+        check_mode: no # this param rebooted one machine in check mode - PAY ATENTION !!!!
+        ignore_errors: true
+        changed_when: false
+        async: 1
+        poll: 0
+
+      - name: wait for server to come back after reboot
+        wait_for_connection:
+          timeout: 600
+          delay: 20
+        register: reboot_result
+
+      - name: reboot time
+        debug:
+          msg: "The system rebooted in {{ reboot_result.elapsed }} seconds."
+
+...

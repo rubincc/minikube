@@ -1,0 +1,28 @@
+[local]
+# mn1.hl.local ansible_ssh_user=opman ansible_ssh_private_key_file=~/.ssh/opmaned25519
+# wn1.hl.local ansible_ssh_user=opman ansible_ssh_private_key_file=~/.ssh/opmaned25519
+# wn2.hl.local ansible_ssh_user=opman ansible_ssh_private_key_file=~/.ssh/opmaned25519
+mn1
+wn1
+wn2
+
+[minikube]
+minikub
+
+[master]
+mn1
+
+[worker]
+wn1
+wn2
+
+[ssh_config]
+
+
+
+[ssh_config:vars]
+# this is used for passing the ssh connection string from this file (aka hosts_inventory).
+# ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q root@10.254.3.56"'
+
+# this passes the ssh connection strings from ~/.ssh/config.
+ansible_ssh_common_args='-F /Users/copper/.ssh/config'
