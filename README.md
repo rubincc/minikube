@@ -24,6 +24,8 @@ All the variables are exposed in `terraform.tfvars` file except the `username` a
 
 Of course before running terraform commands the `.env` file must be sourced.
 
+Although the VM used for templating had `nested hardware virtualization` enabled the resulted VM after cloning operation had not. It seems that vSphere provider keeps that boolean parameter  `false` by default. See [nested_hv_enabled](https://www.terraform.io/docs/providers/vsphere/r/virtual_machine.html#nested_hv_enabled). Without this **Minikube** will not run inside a VM.
+
 ## Links:
 [Minikube Home](https://minikube.sigs.k8s.io/)
 

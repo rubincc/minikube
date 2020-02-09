@@ -75,9 +75,11 @@ resource "vsphere_virtual_machine" "vm" {
   resource_pool_id = data.vsphere_resource_pool.pool.id
   datastore_id     = data.vsphere_datastore.datastore.id
 
-  num_cpus = var.vm_num_cpus
-  memory   = var.vm_memory
-  guest_id = data.vsphere_virtual_machine.template.guest_id
+  num_cpus          = var.vm_num_cpus
+  memory            = var.vm_memory
+  guest_id          = data.vsphere_virtual_machine.template.guest_id
+  nested_hv_enabled = true // enable nested hw virtulization - default false
+  // see docs https://www.terraform.io/docs/providers/vsphere/r/virtual_machine.html#nested_hv_enabled
 
   scsi_type = data.vsphere_virtual_machine.template.scsi_type
 
