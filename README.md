@@ -34,7 +34,7 @@ Although the VM used for templating had `nested hardware virtualization` enabled
 
 The user that will start Minikube should be added to the local group `libvirt` to stop asking the password at each 3 seconds until the cluster is started. Also, for the better, set Minikube memory permanently with this:
 
-    # minikube config set memory='4096m'
+    # minikube config set memory 4096
 
 ## Links:
 [Minikube Home](https://minikube.sigs.k8s.io/)
