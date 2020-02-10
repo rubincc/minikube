@@ -4,6 +4,12 @@ Prepare the Lab to test and learn Kubernetes using [Minikube](https://github.com
 
 ## Lab configuration
 
+### Prerequisites
+
+- *a vSphere 6.7 test infrastructure*
+- *Terraform - installed on the control machine*
+- *Ansible - installed on the control machine*
+
 Minikube will be run in a VM on a **vSphere 6.7** infrastructure, (`Expose hardware assisted virtualization to the guest OS` - checked) . The OS will be latest [*Fedora*](https://getfedora.org/) (currently 31).
 
 The lab will be automated with Terraform and Ansible so that it can be available for work as soon as possible.
@@ -25,6 +31,10 @@ All the variables are exposed in `terraform.tfvars` file except the `username` a
 Of course before running terraform commands the `.env` file must be sourced.
 
 Although the VM used for templating had `nested hardware virtualization` enabled the resulted VM after cloning operation had not. It seems that vSphere provider keeps that boolean parameter  `false` by default. See [nested_hv_enabled](https://www.terraform.io/docs/providers/vsphere/r/virtual_machine.html#nested_hv_enabled). Without this **Minikube** will not run inside a VM. The Minikube VM will use the KVM driver.
+
+The user that will start Minikube should be added to the local group `libvirt` to stop asking the password at each 3 seconds until the cluster is started. Also, for the better, set Minikube memory permanently with this:
+
+    # minikube config set memory='4096m'
 
 ## Links:
 [Minikube Home](https://minikube.sigs.k8s.io/)
