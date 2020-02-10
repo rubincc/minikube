@@ -1,0 +1,69 @@
+---
+- hosts: minikub
+  gather_facts: true
+  user: opman
+  become: true
+
+  tasks:
+
+    - name: Add yum repo for Kubernetes
+      shell: |
+        cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+        enabled=1
+        gpgcheck=1
+        repo_gpgcheck=1
+        gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        EOF
+        rpm --import https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        yum -q makecache -y --disablerepo=* --enablerepo=kubernetes
+
+    - name: Install Kubectl
+      package:
+        name:
+          - kubectl
+    
+    - name: Install virtualization tools package group
+      yum:
+        name: "@virtualization"
+        state: present
+
+    - name: Enable and start libvirtd daemon
+      service:
+        name: libvirtd
+        enabled: yes
+        state: started
+
+    - name: Install dependecies for pip and virt_net
+      pip:
+        name:
+          - virtualenv # this is for pip - Ansible prereq
+          - setuptools # this is for pip - Ansible prereq
+          - libvirt-python # this is for virt_net - Ansible prereq
+          - lxml # this is for virt_net - Ansible prereq
+
+    - name: enable autostart for default network
+      virt_net:
+        autostart: yes
+        name: default
+
+    - name: start the default network
+      virt_net:
+        name: default
+        state: active
+
+    - name: Install Minikube and set configuration
+      shell: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-1.7.2-0.x86_64.rpm \
+        && sudo rpm -ivh minikube-1.7.2-0.x86_64.rpm
+        minikube config set vm-driver kvm2
+        minikube config set memory 4096
+
+    - name: Add the user opman to the group libvirt
+      user:
+        name: opman
+        groups: libvirt
+        append: yes
+...
